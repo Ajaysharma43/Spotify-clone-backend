@@ -18,9 +18,9 @@ try {
     mongoose.connect("mongodb+srv://ajaysharma445446:powerhouseajay6556@cluster0.jjqpew8.mongodb.net/database1?retryWrites=true&w=majority",{
         useNewUrlParser: true,
         useUnifiedTopology: true,
-    }).then(()=>console.log("connected successfully"));
+    }).then(()=>console.log("connected successfully"))    
 } catch (error) {
-    console.log(error);
+    console.log("error");
 }
 
 
@@ -129,6 +129,7 @@ app.post('/RemoveLikedSongs',async(req,res)=>{
         await data.save();
         console.log(data);
         console.log("Song removed");
+        res.send("removed");
     }
 
 })
