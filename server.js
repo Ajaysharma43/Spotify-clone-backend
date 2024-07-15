@@ -1,7 +1,6 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const axios  = require('axios');
 const data = require("./data/data.json");
 const mongoose = require('mongoose')
 const mongodata = require('./Mongodb module/Users-module')
