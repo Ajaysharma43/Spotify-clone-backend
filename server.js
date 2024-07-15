@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
-const cors = require('cors')
+const cors = require('cors');
+const axios  = require('axios');
 const data = require("./data/data.json");
 const mongoose = require('mongoose')
 const mongodata = require('./Mongodb module/Users-module')
@@ -15,12 +16,35 @@ app.use(cors());
 
 
 try {
+    
+const connectWithRetry = () => {
+    console.log('Attempting to connect to MongoDB...');
+
+    mongoose.connect("mongodb+srv://ajaysharma445446:powerhouseajay6556@cluster0.jjqpew8.mongodb.net/database1?retryWrites=true&w=majority", {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    }).then(() => {
+        console.log("Connected successfully");
+    }).catch((err) => {
+        console.error('Failed to connect to MongoDB:', err);
+        setTimeout(connectWithRetry, 5000); // Retry after 5 seconds
+    });
+};
+
+connectWithRetry(); 
+} catch (error) {
+    
+    console.log(error);
+}
+
+const connectwithretry = () => {
     mongoose.connect("mongodb+srv://ajaysharma445446:powerhouseajay6556@cluster0.jjqpew8.mongodb.net/database1?retryWrites=true&w=majority",{
         useNewUrlParser: true,
         useUnifiedTopology: true,
-    }).then(()=>console.log("connected successfully"))    
-} catch (error) {
-    console.log("error");
+    }).then(()=>console.log("connected successfully"))
+    .catch((connectwithretry)=>{
+        connectwithretry();
+    })
 }
 
 
