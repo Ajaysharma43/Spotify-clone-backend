@@ -4,12 +4,13 @@ const cors = require('cors');
 const data = require("./data/data.json");
 const mongoose = require('mongoose')
 const mongodata = require('./Mongodb module/Users-module')
+const SongData = require('./Mongodb module/Data-module')
 const bodyParser = require('body-parser');
 mongoose.set('strictQuery',true);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
-app.use(bodyParser.json());
+
 app.use(cors());
 
 
@@ -26,7 +27,7 @@ const connectWithRetry = () => {
         console.log("Connected successfully");
     }).catch((err) => {
         console.error('Failed to connect to MongoDB:', err);
-        setTimeout(connectWithRetry, 5000); // Retry after 5 seconds
+        setTimeout(connectWithRetry, 5000); 
     });
 };
 
@@ -36,26 +37,19 @@ connectWithRetry();
     console.log(error);
 }
 
-const connectwithretry = () => {
-    mongoose.connect("mongodb+srv://ajaysharma445446:powerhouseajay6556@cluster0.jjqpew8.mongodb.net/database1?retryWrites=true&w=majority",{
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    }).then(()=>console.log("connected successfully"))
-    .catch((connectwithretry)=>{
-        connectwithretry();
-    })
-}
 
 
-function shuffle(data2) {
+
+function shuffle(data2,data) {
     let extra = []
     let result;
     let shuffleddata = [];
     for(i = 0;i<=data2-1;i++)
-        {
-           result =  Math.floor(Math.random() * data2)
-           extra[i] = result
-           shuffleddata[i] = data.find(data => data.id === extra[i])
+        { 
+           result =  Math.floor(Math.random() * data2);
+           extra[i] = result;
+           shuffleddata[i] = data.find(data => data[i] === extra[i]);
+           console.log(shuffleddata[i]);
         }
 
         let uniquearray = [ ...new Set(shuffleddata)]
@@ -66,6 +60,40 @@ function shuffle(data2) {
         })
         
 }
+
+app.post('/SongUpload',async(req,res)=>{
+    const Song = req.body.Song;
+    const SongImage = req.body.SongImage;
+    const SongName  = req.body.SongName;
+    const SongArtist = req.body.SongArtist;
+    const SongGenre = req.body.SongGenre;
+
+    const data = {"Song_Name":SongName,"Song":Song,"Song_Image":SongImage,"Artist":SongArtist,"Genre":SongGenre};
+    console.log(data);
+    const std = new SongData(data);
+    const result = std.save();
+    console.log(result);
+
+})
+
+app.get('/SongsData',async(req,res)=>{
+    const data = await SongData.find();
+    res.send(data);
+})
+
+app.get('/SongsData/:id',async(req,res)=>{
+    try{
+        const num = req.params.id;
+        console.log(num);
+        const data = await SongData.findById(num);
+        res.send(data)
+    }
+    catch(error)
+    {
+        console.log(error);
+    }
+    
+})
 
 app.post('/SignUp',async (req,res)=>{
     try
@@ -116,6 +144,7 @@ app.post('/LikedSongs', async(req,res)=>{
     const Song = req.body.data;
     const Username = req.body.Username;
     const Password = req.body.Password;
+    const Isliked = "Liked";
 
     const data = await mongodata.findOne({UserName:Username,Password:Password});
     const existingsong = data.Likedsongs.find(Song => Song.id === id);
@@ -125,9 +154,9 @@ app.post('/LikedSongs', async(req,res)=>{
     }
     else
     {
-        data.Likedsongs.push({id,name,Song});
-        await data.save();
-        console.log(data);
+            data.Likedsongs.push({id,name,Song,IsLiked:Isliked});
+            await data.save();
+            console.log(data);
     }
     
 
@@ -139,6 +168,7 @@ app.post('/RemoveLikedSongs',async(req,res)=>{
     const Song = req.body.data;
     const Username = req.body.Username;
     const Password = req.body.Password;
+    const Isliked = false;
 
     const data = await mongodata.findOne({UserName:Username,Password:Password});
     const existingsong = data.Likedsongs.find(Song => Song.id === id);
@@ -148,7 +178,7 @@ app.post('/RemoveLikedSongs',async(req,res)=>{
     }
     else
     {
-        data.Likedsongs.pull({id,name,Song});
+        data.Likedsongs.pull({id,name,Song,Isliked});
         await data.save();
         console.log(data);
         console.log("Song removed");

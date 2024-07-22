@@ -6,7 +6,8 @@ const Schema = new mongoose.Schema({
     Likedsongs:[{
         id:Number,
         name:String,
-        Song:String
+        Song:String,
+        IsLiked:String
     }]
 })
 module.exports = mongoose.model('table1',Schema)
