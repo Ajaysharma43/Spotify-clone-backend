@@ -4,7 +4,7 @@ const Schema = new mongoose.Schema({
     Password:String,
     Email:String,
     Likedsongs:[{
-        id:Number,
+        id:String,
         name:String,
         Song:String,
         IsLiked:String
