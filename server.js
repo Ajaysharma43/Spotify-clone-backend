@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const allowedOrigins = [
-  'https://spotify-clone-three-ebon.vercel.app'
+  'https://spotify-clone-three-ebon.vercel.app',
   'https://spotify-clone-orpin-ten.vercel.app'
 ];
 
