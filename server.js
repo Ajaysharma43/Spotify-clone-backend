@@ -28,7 +28,26 @@ app.use(cors({
   credentials: true
 }));
 
+app.post('/Login',async (req, res) => {
+  try {
+    const name = req.body.name;
+    const password = req.body.password;
 
+    const data = await mongodata.findOne({
+      UserName: name,
+      Password: password,
+    });
+    console.log(data);
+    if (!data) {
+      res.json({ message: 'not verified' });
+    } else {
+      res.json({ message: 'verified' });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  
+});
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', 'https://spotify-clone-orpin-ten.vercel.app/'); // Replace '*' with your frontend domain
