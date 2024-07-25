@@ -28,10 +28,7 @@ app.use(cors({
   credentials: true
 }));
 
-app.post('/Login', (req, res) => {
-  // Your endpoint logic
-  res.json({ message: 'Success' });
-});
+
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', 'https://spotify-clone-orpin-ten.vercel.app/'); // Replace '*' with your frontend domain
