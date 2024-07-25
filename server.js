@@ -11,7 +11,17 @@ mongoose.set("strictQuery", true);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(cors());
+app.use(cors({
+  origin: 'https://your-frontend-domain.com',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*'); // Replace '*' with your frontend domain
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
 
 try {
   const connectWithRetry = () => {
@@ -104,7 +114,7 @@ app.post("/SignUp", async (req, res) => {
 
     const data = { UserName: name, Password: Password, Email: email };
     const std = new mongodata(data);
-    const result = std.save();
+    const result = await std.save();
     console.log(result);
   } catch (error) {
     console.log(error);
