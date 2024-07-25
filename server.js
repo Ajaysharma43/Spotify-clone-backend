@@ -122,7 +122,7 @@ app.post("/SongUpload", async (req, res) => {
 
 app.get("/SongsData", async (req, res) => {
   const data = await SongData.find();
-  res.send(data);
+  res.json({data});
 });
 
 app.get("/SongsData/:id", async (req, res) => {
@@ -130,7 +130,7 @@ app.get("/SongsData/:id", async (req, res) => {
     const num = req.params.id;
     console.log(num);
     const data = await SongData.findById(num);
-    res.send(data);
+    res.json({data});
   } catch (error) {
     console.log(error);
   }
