@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const allowedOrigins = [
   'https://spotify-clone-three-ebon.vercel.app'
-  // 'https://spotify-clone-orpin-ten.vercel.app'
+  'https://spotify-clone-orpin-ten.vercel.app'
 ];
 
 app.use(cors({
@@ -50,7 +50,7 @@ app.post('/Login',async (req, res) => {
 });
 
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://spotify-clone-orpin-ten.vercel.app/'); // Replace '*' with your frontend domain
+  res.header('Access-Control-Allow-Origin', 'https://spotify-clone-orpin-ten.vercel.app'); // Replace '*' with your frontend domain
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   next();
 });
