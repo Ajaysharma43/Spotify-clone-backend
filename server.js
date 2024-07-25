@@ -136,8 +136,38 @@ app.post("/Liked", async (req, res) => {
   const password = req.body.password;
 
   const data = await mongodata.findOne({ UserName: name, Password: password });
-  res.send({data});
+  console.log(data);
+  res.send({ data });
 });
+
+app.post('/UpdateLiked',async(req,res)=>{
+  const id = req.body.id;
+  const name = req.body.name;
+  const image = req.body.song;
+  const Username = req.body.username;
+  const Password = req.body.password;
+
+
+  const data = await mongodata.findOne({
+    UserName: Username,
+    Password: Password,
+  });
+  const result = data.Likedsongs.find((Song) => Song.name === name)
+  if(result)
+  {
+    data.Likedsongs.pull({ id, name:name, Song:image});
+    await data.save();
+    res.send("removed");
+  }
+  else
+  {
+    const IsLiked = 'liked';
+    data.Likedsongs.push({id, name:name, Song:image , IsLiked:IsLiked});
+    await data.save();
+    res.send("added");
+  }
+  console.log(result);
+})
 
 app.post("/LikedSongs", async (req, res) => {
   const id = req.body.id;
@@ -153,6 +183,7 @@ app.post("/LikedSongs", async (req, res) => {
   const existingsong = data.Likedsongs.find((Song) => Song.id === id);
   if (existingsong) {
     console.log("data already existed");
+    data.Likedsongs.pull((Song) =>Song.id === id)
   } else {
     const Isliked = "Liked";
     data.Likedsongs.push({ id, name, Song: image, IsLiked: Isliked });
@@ -164,6 +195,21 @@ app.post("/LikedSongs", async (req, res) => {
     const result = data.Likedsongs;
     res.send({ result });
   }
+});
+
+app.get("/addlikedsongs", async (req, res) => {
+  const data = await mongodata.findOne({
+    UserName: "Ajay Sharma",
+    Password: "powerhouseajay6556",
+  });
+  data.Likedsongs.push({
+    id: "669dec1cbb228fcaa43a22e7",
+    name: "Mutiyaar",
+    Song: "https://aac.saavncdn.com/862/b3efc73947df8d3ade6a56b41395dc3e_96.mp4",
+    IsLiked: "liked",
+  });
+  await data.save();
+  res.send({ data });
 });
 
 app.post("/RemoveLikedSongs", async (req, res) => {
