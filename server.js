@@ -11,11 +11,27 @@ mongoose.set("strictQuery", true);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+const allowedOrigins = [
+  'https://spotify-clone-three-ebon.vercel.app',
+  'https://spotify-clone-orpin-ten.vercel.app'
+];
+
 app.use(cors({
-  origin: 'https://spotify-clone-orpin-ten.vercel.app',
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  credentials: true
 }));
+
+app.post('/Login', (req, res) => {
+  // Your endpoint logic
+  res.json({ message: 'Success' });
+});
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', 'https://spotify-clone-orpin-ten.vercel.app/'); // Replace '*' with your frontend domain
