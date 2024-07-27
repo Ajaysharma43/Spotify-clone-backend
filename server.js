@@ -8,12 +8,14 @@ const SongData = require("./Mongodb module/Data-module");
 const bodyParser = require("body-parser");
 mongoose.set("strictQuery", true);
 
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+
 const allowedOrigins = [
-  'https://spotify-clone-three-ebon.vercel.app'
-  // 'https://spotify-clone-orpin-ten.vercel.app'
+  'https://spotify-clone-three-ebon.vercel.app',
+  'http://localhost:5173'
 ];
 
 app.use(cors({
