@@ -18,17 +18,18 @@ const allowedOrigins = [
   'http://localhost:5173'
 ];
 
-app.use(cors({
-  origin: (origin, callback) => {
+const corsOptions = {
+  origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
-}));
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept']
+};
+
+app.use(cors(corsOptions));
 
 app.post('/Login',async (req, res) => {
   try {
@@ -51,12 +52,12 @@ app.post('/Login',async (req, res) => {
   
 });
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://spotify-clone-three-ebon.vercel.app');
-  res.header('Access-Control-Allow-Origin', 'http://localhost:5173');// Replace '*' with your frontend domain
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  next();
-});
+// app.use((req, res, next) => {
+//   res.header('Access-Control-Allow-Origin', 'https://spotify-clone-three-ebon.vercel.app');
+//   res.header('Access-Control-Allow-Origin', 'http://localhost:5173');// Replace '*' with your frontend domain
+//   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+//   next();
+// });
 
 try {
   const connectWithRetry = () => {
