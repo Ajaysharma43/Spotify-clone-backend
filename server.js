@@ -18,18 +18,17 @@ const allowedOrigins = [
   'http://localhost:5173'
 ];
 
-const corsOptions = {
-  origin: function (origin, callback) {
+app.use(cors({
+  origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept']
-};
-
-app.use(cors(corsOptions));
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 
 app.post('/Login',async (req, res) => {
   try {
@@ -52,12 +51,11 @@ app.post('/Login',async (req, res) => {
   
 });
 
-// app.use((req, res, next) => {
-//   res.header('Access-Control-Allow-Origin', 'https://spotify-clone-three-ebon.vercel.app');
-//   res.header('Access-Control-Allow-Origin', 'http://localhost:5173');// Replace '*' with your frontend domain
-//   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-//   next();
-// });
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://spotify-clone-three-ebon.vercel.app'); // Replace '*' with your frontend domain
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
 
 try {
   const connectWithRetry = () => {
@@ -193,7 +191,8 @@ app.post("/Liked", async (req, res) => {
 app.post('/UpdateLiked',async(req,res)=>{
   const id = req.body.id;
   const name = req.body.name;
-  const image = req.body.song;
+  const song = req.body.song;
+  const image = req.body.image;
   const Username = req.body.username;
   const Password = req.body.password;
 
@@ -212,7 +211,7 @@ app.post('/UpdateLiked',async(req,res)=>{
   else
   {
     const IsLiked = 'liked';
-    data.Likedsongs.push({id, name:name, Song:image , IsLiked:IsLiked});
+    data.Likedsongs.push({id, name:name, Song:song ,Image:image, IsLiked:IsLiked});
     await data.save();
     res.send("added");
   }

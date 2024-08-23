@@ -7,6 +7,7 @@ const Schema = new mongoose.Schema({
         id:String,
         name:String,
         Song:String,
+        Image:String,
         IsLiked:String
     }]
 })
