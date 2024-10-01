@@ -9,6 +9,7 @@ const bodyParser = require("body-parser");
 mongoose.set("strictQuery", true);
 
 app.use(cors());
+app.options('*', cors(corsOptions));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
