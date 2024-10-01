@@ -9,7 +9,6 @@ const bodyParser = require("body-parser");
 mongoose.set("strictQuery", true);
 
 app.use(cors());
-app.options('*', cors(corsOptions));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -30,6 +29,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 app.post('/Login',async (req, res) => {
   try {
