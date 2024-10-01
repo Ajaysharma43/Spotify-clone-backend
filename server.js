@@ -13,17 +13,22 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-const allowedOrigins = ['http://localhost:5173', 'https://spotify-clone-three-ebon.vercel.app'];
 
-app.use(cors({
-    origin: function (origin, callback) {
-        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
+const allowedOrigins = ['http://localhost:5173', 'https://spotify-clone-backend-f1ve.onrender.com'];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
     }
-}));
+  },
+  methods: 'GET,POST,PUT,DELETE',
+  credentials: true, // Allow credentials if needed (for cookies, etc.)
+};
+
+app.use(cors(corsOptions));
 
 app.post('/Login',async (req, res) => {
   try {
