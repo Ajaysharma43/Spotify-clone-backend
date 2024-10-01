@@ -130,6 +130,7 @@ app.post("/SongUpload", async (req, res) => {
 app.get('/SongsData', async (req, res) => {
   try {
     const data = await SongData.find();
+    data.length = 6;
     res.json({ data });
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
