@@ -9,6 +9,13 @@ const Schema = new mongoose.Schema({
         Song:String,
         Image:String,
         IsLiked:String
+    }],
+    History:[{
+        id:String,
+        name:String,
+        Song:String,
+        Image:String,
+        IsLiked:String
     }]
 })
 module.exports = mongoose.model('table1',Schema)

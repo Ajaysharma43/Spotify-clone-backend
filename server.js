@@ -6,18 +6,23 @@ const mongoose = require("mongoose");
 const mongodata = require("./Mongodb module/Users-module");
 const SongData = require("./Mongodb module/Data-module");
 const bodyParser = require("body-parser");
+const dotenv = require('dotenv');
 mongoose.set("strictQuery", true);
 
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+dotenv.config();
 
+const url = process.env.MONGO_LINK
+const localhost = process.env.LOCALHOST_LINK
+const deploy = process.env.DEPLOYMENT_LINK
 
 
 
 const allowedOrigins = [
-  'http://localhost:5173', 
-  'https://spotify-clone-three-ebon.vercel.app'
+  `${localhost}`, 
+  `${deploy}`
 ];
 
 const corsOptions = {
@@ -56,11 +61,6 @@ app.post('/Login',async (req, res) => {
   
 });
 
-// app.use((req, res, next) => {
-//   res.header('Access-Control-Allow-Origin', 'https://spotify-clone-three-ebon.vercel.app'); // Replace '*' with your frontend domain
-//   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-//   next();
-// });
 
 try {
   const connectWithRetry = () => {
@@ -68,7 +68,7 @@ try {
 
     mongoose
       .connect(
-        "mongodb+srv://ajaysharma445446:powerhouseajay6556@cluster0.jjqpew8.mongodb.net/database1?retryWrites=true&w=majority",
+        `${url}`,
         {
           useNewUrlParser: true,
           useUnifiedTopology: true,
@@ -88,23 +88,15 @@ try {
   console.log(error);
 }
 
-function shuffle(data2, data) {
-  let extra = [];
-  let result;
-  let shuffleddata = [];
-  for (i = 0; i <= data2 - 1; i++) {
-    result = Math.floor(Math.random() * data2);
-    extra[i] = result;
-    shuffleddata[i] = data.find((data) => data[i] === extra[i]);
-    console.log(shuffleddata[i]);
-  }
+function shuffle(sourceArray) {
+  for (var i = 0; i < sourceArray.length - 1; i++) {
+      var j = i + Math.floor(Math.random() * (sourceArray.length - i));
 
-  let uniquearray = [...new Set(shuffleddata)];
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve(uniquearray);
-    });
-  });
+      var temp = sourceArray[j];
+      sourceArray[j] = sourceArray[i];
+      sourceArray[i] = temp;
+  }
+  return sourceArray;
 }
 
 app.post("/SongUpload", async (req, res) => {
@@ -129,8 +121,20 @@ app.post("/SongUpload", async (req, res) => {
 
 app.get('/SongsData', async (req, res) => {
   try {
-    const data = await SongData.find();
+    let data = [];
+    data = await SongData.find();
+    data = shuffle(data);
     data.length = 6;
+    res.json({ data });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/GetAllSongs', async (req, res) => {
+  try {
+    let data = [];
+    data = await SongData.find();
     res.json({ data });
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
@@ -154,12 +158,25 @@ app.post("/SignUp", async (req, res) => {
     const Password = req.body.password;
     const email = req.body.email;
 
-    console.log(name, Password, email);
-
-    const data = { UserName: name, Password: Password, Email: email };
+    const user = await mongodata.findOne({
+      UserName:name,
+      Password:Password,
+      Email:email
+    })
+    if(user)
+    {
+      res.send("existed");
+      console.log("existed");
+      
+    }
+    else
+    {
+      const data = { UserName: name, Password: Password, Email: email };
     const std = new mongodata(data);
     const result = await std.save();
     console.log(result);
+    }
+
   } catch (error) {
     console.log(error);
   }
@@ -224,48 +241,48 @@ app.post('/UpdateLiked',async(req,res)=>{
   console.log(result);
 })
 
-app.post("/LikedSongs", async (req, res) => {
-  const id = req.body.id;
-  const name = req.body.name;
-  const image = req.body.image;
-  const Username = req.body.username;
-  const Password = req.body.password;
+// app.post("/LikedSongs", async (req, res) => {
+//   const id = req.body.id;
+//   const name = req.body.name;
+//   const image = req.body.image;
+//   const Username = req.body.username;
+//   const Password = req.body.password;
 
-  const data = await mongodata.findOne({
-    UserName: Username,
-    Password: Password,
-  });
-  const existingsong = data.Likedsongs.find((Song) => Song.id === id);
-  if (existingsong) {
-    console.log("data already existed");
-    data.Likedsongs.pull((Song) =>Song.id === id)
-  } else {
-    const Isliked = "Liked";
-    data.Likedsongs.push({ id, name, Song: image, IsLiked: Isliked });
-    await data.save();
-    const user = await mongodata.findOne({
-      UserName: Username,
-      Password: Password,
-    });
-    const result = data.Likedsongs;
-    res.send({ result });
-  }
-});
+//   const data = await mongodata.findOne({
+//     UserName: Username,
+//     Password: Password,
+//   });
+//   const existingsong = data.Likedsongs.find((Song) => Song.id === id);
+//   if (existingsong) {
+//     console.log("data already existed");
+//     data.Likedsongs.pull((Song) =>Song.id === id)
+//   } else {
+//     const Isliked = "Liked";
+//     data.Likedsongs.push({ id, name, Song: image, IsLiked: Isliked });
+//     await data.save();
+//     const user = await mongodata.findOne({
+//       UserName: Username,
+//       Password: Password,
+//     });
+//     const result = data.Likedsongs;
+//     res.send({ result });
+//   }
+// });
 
-app.get("/addlikedsongs", async (req, res) => {
-  const data = await mongodata.findOne({
-    UserName: "Ajay Sharma",
-    Password: "powerhouseajay6556",
-  });
-  data.Likedsongs.push({
-    id: "669dec1cbb228fcaa43a22e7",
-    name: "Mutiyaar",
-    Song: "https://aac.saavncdn.com/862/b3efc73947df8d3ade6a56b41395dc3e_96.mp4",
-    IsLiked: "liked",
-  });
-  await data.save();
-  res.send({ data });
-});
+// app.get("/addlikedsongs", async (req, res) => {
+//   const data = await mongodata.findOne({
+//     UserName: "Ajay Sharma",
+//     Password: "powerhouseajay6556",
+//   });
+//   data.Likedsongs.push({
+//     id: "669dec1cbb228fcaa43a22e7",
+//     name: "Mutiyaar",
+//     Song: "https://aac.saavncdn.com/862/b3efc73947df8d3ade6a56b41395dc3e_96.mp4",
+//     IsLiked: "liked",
+//   });
+//   await data.save();
+//   res.send({ data });
+// });
 
 app.post("/RemoveLikedSongs", async (req, res) => {
   const id = req.body.id;
