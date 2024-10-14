@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const mongodata = require("./Mongodb module/Users-module");
 const SongData = require("./Mongodb module/Data-module");
 const bodyParser = require("body-parser");
-const dotenv = require('dotenv');
+const dotenv = require("dotenv");
 mongoose.set("strictQuery", true);
 
 app.use(cors());
@@ -14,33 +14,28 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 dotenv.config();
 
-const url = process.env.MONGO_LINK
-const localhost = process.env.LOCALHOST_LINK
-const deploy = process.env.DEPLOYMENT_LINK
+const url = process.env.MONGO_LINK;
+const localhost = process.env.LOCALHOST_LINK;
+const deploy = process.env.DEPLOYMENT_LINK;
 
-
-
-const allowedOrigins = [
-  `${localhost}`, 
-  `${deploy}`
-];
+const allowedOrigins = [`${localhost}`, `${deploy}`];
 
 const corsOptions = {
   origin: function (origin, callback) {
     if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error("Not allowed by CORS"));
     }
   },
-  methods: 'GET,POST,PUT,DELETE',
+  methods: "GET,POST,PUT,DELETE",
   credentials: true, // Allow credentials if needed (cookies, etc.)
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Handle preflight requests
+app.options("*", cors(corsOptions)); // Handle preflight requests
 
-app.post('/Login',async (req, res) => {
+app.post("/Login", async (req, res) => {
   try {
     const name = req.body.name;
     const password = req.body.password;
@@ -51,29 +46,24 @@ app.post('/Login',async (req, res) => {
     });
     console.log(data);
     if (!data) {
-      res.json({ message: 'not verified' });
+      res.json({ message: "not verified" });
     } else {
-      res.json({ message: 'verified' });
+      res.json({ message: "verified" });
     }
   } catch (error) {
     console.log(error);
   }
-  
 });
-
 
 try {
   const connectWithRetry = () => {
     console.log("Attempting to connect to MongoDB...");
 
     mongoose
-      .connect(
-        `${url}`,
-        {
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
-        }
-      )
+      .connect(`${url}`, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      })
       .then(() => {
         console.log("Connected successfully");
       })
@@ -90,11 +80,11 @@ try {
 
 function shuffle(sourceArray) {
   for (var i = 0; i < sourceArray.length - 1; i++) {
-      var j = i + Math.floor(Math.random() * (sourceArray.length - i));
+    var j = i + Math.floor(Math.random() * (sourceArray.length - i));
 
-      var temp = sourceArray[j];
-      sourceArray[j] = sourceArray[i];
-      sourceArray[i] = temp;
+    var temp = sourceArray[j];
+    sourceArray[j] = sourceArray[i];
+    sourceArray[i] = temp;
   }
   return sourceArray;
 }
@@ -119,7 +109,7 @@ app.post("/SongUpload", async (req, res) => {
   console.log(result);
 });
 
-app.get('/SongsData', async (req, res) => {
+app.get("/SongsData", async (req, res) => {
   try {
     let data = [];
     data = await SongData.find();
@@ -127,17 +117,17 @@ app.get('/SongsData', async (req, res) => {
     data.length = 6;
     res.json({ data });
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
-app.get('/GetAllSongs', async (req, res) => {
+app.get("/GetAllSongs", async (req, res) => {
   try {
     let data = [];
     data = await SongData.find();
     res.json({ data });
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
@@ -146,7 +136,7 @@ app.get("/SongsData/:id", async (req, res) => {
     const num = req.params.id;
     console.log(num);
     const data = await SongData.findById(num);
-    res.json({data});
+    res.json({ data });
   } catch (error) {
     console.log(error);
   }
@@ -159,24 +149,19 @@ app.post("/SignUp", async (req, res) => {
     const email = req.body.email;
 
     const user = await mongodata.findOne({
-      UserName:name,
-      Password:Password,
-      Email:email
-    })
-    if(user)
-    {
+      UserName: name,
+      Password: Password,
+      Email: email,
+    });
+    if (user) {
       res.send("existed");
       console.log("existed");
-      
-    }
-    else
-    {
+    } else {
       const data = { UserName: name, Password: Password, Email: email };
-    const std = new mongodata(data);
-    const result = await std.save();
-    console.log(result);
+      const std = new mongodata(data);
+      const result = await std.save();
+      console.log(result);
     }
-
   } catch (error) {
     console.log(error);
   }
@@ -211,7 +196,7 @@ app.post("/Liked", async (req, res) => {
   res.send({ data });
 });
 
-app.post('/UpdateLiked',async(req,res)=>{
+app.post("/UpdateLiked", async (req, res) => {
   const id = req.body.id;
   const name = req.body.name;
   const song = req.body.song;
@@ -219,27 +204,87 @@ app.post('/UpdateLiked',async(req,res)=>{
   const Username = req.body.username;
   const Password = req.body.password;
 
-
   const data = await mongodata.findOne({
     UserName: Username,
     Password: Password,
   });
-  const result = data.Likedsongs.find((Song) => Song.name === name)
-  if(result)
-  {
-    data.Likedsongs.pull({ id, name:name, Song:image});
+  const result = data.Likedsongs.find((Song) => Song.name === name);
+  if (result) {
+    data.Likedsongs.pull({ id, name: name, Song: image });
     await data.save();
     res.send("removed");
-  }
-  else
-  {
-    const IsLiked = 'liked';
-    data.Likedsongs.push({id, name:name, Song:song ,Image:image, IsLiked:IsLiked});
+  } else {
+    const IsLiked = "liked";
+    data.Likedsongs.push({
+      id,
+      name: name,
+      Song: song,
+      Image: image,
+      IsLiked: IsLiked,
+    });
     await data.save();
     res.send("added");
   }
   console.log(result);
-})
+});
+
+app.post("/History", async (req, res) => {
+  const id = req.body.Songid;
+  const name = req.body.Songname;
+  const song = req.body.Song;
+  const image = req.body.SongImage;
+  const Username = req.body.username;
+  const Password = req.body.password;
+
+  const user = await mongodata.findOne({
+    UserName: Username,
+    Password: Password,
+  });
+  const songExists = user.History.some((song) => song.Song === song);
+
+    if (songExists) {
+      user.History = user.History.filter((song) => song.Song !== song);
+      
+      await user.save();
+    }
+else
+{
+  user.History.push({
+    id,
+    name: name,
+    Song: song,
+    Image: image,
+  });;
+  await user.save();
+}
+  
+});
+
+// app.post("/UpdateHistory", async (req, res) => {
+//   try {
+//     const { Songid, Songname, Song, SongImage, username, password } = req.body;
+
+//     // Find the user by username and password
+//     const user = await mongodata.findOne({
+//       UserName: username,
+//       Password: password,
+//     });
+
+//     const songExists = user.History.some((song) => song.Song === Song);
+
+//     if (songExists) {
+//       user.History = user.History.filter((song) => song.Song !== Song);
+      
+//       await user.save();
+//     } else {
+//       return res.status(404).json({ message: "Song not found in history" });
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({ message: "Server error" });
+//   }
+// });
+
 
 // app.post("/LikedSongs", async (req, res) => {
 //   const id = req.body.id;
