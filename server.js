@@ -242,36 +242,22 @@ app.post("/History", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Check if the song exists in the user's history
-    const songIndex = user.History.findIndex((song) => song.Song === Song);
+    // Filter out the song if it exists
+    user.History = user.History.filter((song) => song.Song !== Song);
 
-    if (songIndex > -1) {
-      // Get the existing song without removing it from the array
-      const existingSong = user.History[songIndex];
+    // Add the song to the top of the history
+    user.History.unshift({ id: Songid, name: Songname, Song: Song, Image: SongImage });
 
-      // Remove the song from its current position
-      user.History.splice(songIndex, 1);
+    // Save the updated user data
+    await user.save();
+    return res.status(200).json({ message: "Song added to history" });
 
-      // Add the existing song to the top of the history
-      user.History.unshift(existingSong);
-
-      // Save the updated user data
-      await user.save();
-      return res.status(200).json({ message: "Song moved to the top of history" });
-    } else {
-      // If song does not exist, add it to the beginning of the history
-      user.History.unshift({ id: Songid, name: Songname, Song:Song, Image:SongImage });
-      
-      // Save the updated user data
-      await user.save();
-      return res.status(200).json({ message: "Song added to history" });
-    }
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Server error" });
   }
-  
 });
+
 
 app.post("/HistoryData",async(req,res)=>{
   const username = req.body.username;
@@ -280,6 +266,28 @@ app.post("/HistoryData",async(req,res)=>{
   const user = await mongodata.findOne({UserName:username,Password:password})
 
   res.json({user})
+})
+
+app.post("/deleteHistory", async(req,res) => {
+  const { Songid, Songname, Song, SongImage, username, password } = req.body;
+
+  const data = await mongodata.findOne({
+    UserName: username,
+    Password: password,
+  });
+  const existingsong = data.History.find((Song) => Song.id === Songid);
+  console.log(Songid);
+  
+
+  if (!existingsong) {
+    console.log("data not existed");
+  } else {
+    data.History.pull({ id:Songid, name:Songname, Song:Song, Image:SongImage });
+    await data.save();
+    console.log(data);
+    console.log("Song removed");
+    res.send("removed");
+  }
 })
 
 // app.get("/DeleteHistory",async(req,res)=>{
