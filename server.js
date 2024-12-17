@@ -229,36 +229,65 @@ app.post("/UpdateLiked", async (req, res) => {
 });
 
 app.post("/History", async (req, res) => {
-  const id = req.body.Songid;
-  const name = req.body.Songname;
-  const song = req.body.Song;
-  const image = req.body.SongImage;
-  const Username = req.body.username;
-  const Password = req.body.password;
+  try {
+    const { Songid, Songname, Song, SongImage, username, password } = req.body;
 
-  const user = await mongodata.findOne({
-    UserName: Username,
-    Password: Password,
-  });
-  const songExists = user.History.some((song) => song.Song === song);
+    // Find the user by username and password
+    const user = await mongodata.findOne({
+      UserName: username,
+      Password: password,
+    });
 
-    if (songExists) {
-      user.History = user.History.filter((song) => song.Song !== song);
-      
-      await user.save();
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-else
-{
-  user.History.push({
-    id,
-    name: name,
-    Song: song,
-    Image: image,
-  });;
-  await user.save();
-}
+
+    // Check if the song exists in the user's history
+    const songIndex = user.History.findIndex((song) => song.Song === Song);
+
+    if (songIndex > -1) {
+      // Get the existing song without removing it from the array
+      const existingSong = user.History[songIndex];
+
+      // Remove the song from its current position
+      user.History.splice(songIndex, 1);
+
+      // Add the existing song to the top of the history
+      user.History.unshift(existingSong);
+
+      // Save the updated user data
+      await user.save();
+      return res.status(200).json({ message: "Song moved to the top of history" });
+    } else {
+      // If song does not exist, add it to the beginning of the history
+      user.History.unshift({ id: Songid, name: Songname, Song:Song, Image:SongImage });
+      
+      // Save the updated user data
+      await user.save();
+      return res.status(200).json({ message: "Song added to history" });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
+  }
   
 });
+
+app.post("/HistoryData",async(req,res)=>{
+  const username = req.body.username;
+  const password = req.body.password;
+
+  const user = await mongodata.findOne({UserName:username,Password:password})
+
+  res.json({user})
+})
+
+// app.get("/DeleteHistory",async(req,res)=>{
+//   const DeleteHistory = await mongodata.findOne({UserName:"Ajay Sharma",Password:"powerhouseajay6556"});
+//   DeleteHistory.History.pull({Song:"https://aac.saavncdn.com/073/64c7f6590b3b308b47ddcfd6e54eebb1_96.mp4"});
+//   await DeleteHistory.save();
+// })
+
 
 // app.post("/UpdateHistory", async (req, res) => {
 //   try {
