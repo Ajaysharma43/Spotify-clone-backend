@@ -7,6 +7,7 @@ const mongodata = require("./Mongodb module/Users-module");
 const SongData = require("./Mongodb module/Data-module");
 const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
+const { default: UserData } = require("../src/Dashboard/UserData/UserData");
 mongoose.set("strictQuery", true);
 
 app.use(cors());
@@ -288,6 +289,11 @@ app.post("/deleteHistory", async(req,res) => {
     console.log("Song removed");
     res.send("removed");
   }
+})
+
+app.get("/UsersData", async(req,res)=>{
+  const UsersData = await mongodata.find();
+  res.send(UserData)
 })
 
 // app.get("/DeleteHistory",async(req,res)=>{
